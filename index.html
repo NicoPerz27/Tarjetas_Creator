@@ -1,54 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <meta charset="UTF-8">
   <title>Generar PDFs desde Excel</title>
   <style>
-    .bg{
-      background-color:#EEE;
-      height:100vh;
+    .bg {
+      background-color: #EEE;
+      height: 100vh;
     }
   </style>
 </head>
+
 <body>
   <div class="bg text-center py-5">
-    
+
     <h1>Generador de Tarjetas de Publicadors</h1>
-    <p>Descarga el <a href="./plantilla.xlsx" download>excel</a> y llenalo en el formato compartido con los datos de cada publicador, y subelo aqui para generar las tarjetas de publicador</p>
-    <div style="background-color:white; border-radius:7px; max-width:700px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;" class="mx-auto p-5 d-flex align-items-center justify-content-evenly">      
-      <div class="w-50">        
+    <p>Descarga el <a href="./plantilla.xlsx" download>excel</a> y llenalo en el formato compartido con los datos de
+      cada publicador, y subelo aqui para generar las tarjetas de publicador</p>
+    <div
+      style="background-color:white; border-radius:7px; max-width:700px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;"
+      class="mx-auto p-5 d-flex align-items-center justify-content-evenly">
+      <div class="w-50">
         <input class="form-control" id="excelFile" accept=".xlsx, .xls" type="file">
       </div>
       <button class="btn-success" style="padding: 7.5px 25px; border-radius: 5px" id="process">Generar</button>
     </div>
     <div id="status" class="mt-3"></div>
     <!-- Instrucciones -->
-  <div class="container my-5">
-    <div class="p-4 bg-white rounded shadow">
-      <h2 class="mb-3">📋 Instrucciones de uso</h2>
-      <ol class="text-start">
-        <li>Descarga el archivo Excel de ejemplo que contiene el formato correcto.</li>
-        <li>En la primera columna indica el <strong>número de grupo</strong> de cada publicador.</li>
-        <li>En la segunda columna escribe el <strong>nombre completo</strong>.</li>
-        <li>Completa los demás campos (fechas, género, privilegios, etc.) siguiendo el orden establecido.</li>
-        <li>Para los meses de septiembre a agosto (año de servicio):
-          <ul>
-            <li>Escribe <strong>si</strong> para marcar participacion en el ministerio de ese mes.</li>
-            <li>Si <strong>no</strong> participó en el ministerio ese mes, dejar la casilla en blanco.</li>
-            <li>Escribe un número (horas) para marcar participacion en el ministerio y registrar las horas en ese mes.</li>
-            <li>En la columna siguiente, escribe <strong>si</strong>, sí fue precursor auxiliar ese mes.</li>
-          </ul>
-        </li>
-        <li>Guarda el archivo Excel y súbelo en este sitio.</li>
-        <li>Haz clic en <strong>Generar</strong> para generar los PDFs.</li>
-        <li>Se descargará un archivo ZIP con carpetas separadas por grupos.</li>
-        <li>Descomprime el archivo y tendras todas las carpetas de cada grupo que indicaste y dentro cada miembro del grupo</li>
-      </ol>
+    <div class="container my-5">
+      <div class="p-4 bg-white rounded shadow">
+        <h2 class="mb-3">📋 Instrucciones de uso</h2>
+        <ol class="text-start">
+          <li>Descarga el archivo Excel de ejemplo que contiene el formato correcto.</li>
+          <li>En la primera columna indica el <strong>número de grupo</strong> de cada publicador.</li>
+          <li>En la segunda columna escribe el <strong>nombre completo</strong>.</li>
+          <li>Completa los demás campos (fechas, género, privilegios, etc.) siguiendo el orden establecido.</li>
+          <li>Para los meses de septiembre a agosto (año de servicio):
+            <ul>
+              <li>Escribe <strong>si</strong> para marcar participacion en el ministerio de ese mes.</li>
+              <li>Si <strong>no</strong> participó en el ministerio ese mes, dejar la casilla en blanco.</li>
+              <li>Escribe un número (horas) para marcar participacion en el ministerio y registrar las horas en ese mes.
+              </li>
+              <li>En la columna siguiente, escribe <strong>si</strong>, sí fue precursor auxiliar ese mes.</li>
+            </ul>
+          </li>
+          <li>Guarda el archivo Excel y súbelo en este sitio.</li>
+          <li>Haz clic en <strong>Generar</strong> para generar los PDFs.</li>
+          <li>Se descargará un archivo ZIP con carpetas separadas por grupos.</li>
+          <li>Descomprime el archivo y tendras todas las carpetas de cada grupo que indicaste y dentro cada miembro del
+            grupo</li>
+        </ol>
+      </div>
     </div>
   </div>
-  </div>
-  
+
 
   <!-- Librerías externas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -115,26 +123,28 @@
           try {
             if (gender === "MASCULINO") form.getCheckBox("gender_male").check();
             if (gender === "FEMENINO") form.getCheckBox("gender_female").check();
-          } catch {}
+          } catch { }
 
           // Other sheep / anointed (col 5)
           try {
             if (row[5] == "Otras Ovejas") form.getCheckBox("other_sheep").check();
             if (row[5] == "Ungido") form.getCheckBox("anointed").check();
-          } catch {}
+          } catch { }
 
-          if (row[6] == "si" || row[6] == "x") try { form.getCheckBox("elder").check(); } catch {}
-          if (row[7] == "si" || row[7] == "x") try { form.getCheckBox("ministerial_servant").check(); } catch {}
-          if (row[8] == "si" || row[8] == "x") try { form.getCheckBox("regular_pioner").check(); } catch {}
-          if (row[9] == "si" || row[9] == "x") try { form.getCheckBox("special_pioner").check(); } catch {}
-          if (row[10] == "si" || row[10] == "x") try { form.getCheckBox("missionary").check(); } catch {}
+          if (row[6] == "si" || row[6] == "x") try { form.getCheckBox("elder").check(); } catch { }
+          if (row[7] == "si" || row[7] == "x") try { form.getCheckBox("ministerial_servant").check(); } catch { }
+          if (row[8] == "si" || row[8] == "x") try { form.getCheckBox("regular_pioner").check(); } catch { }
+          if (row[9] == "si" || row[9] == "x") try { form.getCheckBox("special_pioner").check(); } catch { }
+          if (row[10] == "si" || row[10] == "x") try { form.getCheckBox("missionary").check(); } catch { }
 
-          // Meses con pionner
+          // Meses con pionner y cursos
           months.forEach((month, i) => {
-            const baseIndex = 11 + (i * 2);   // cada mes ocupa 2 columnas
-            const valor = row[baseIndex];     // horas/si/no
-            const pionnerVal = row[baseIndex + 1]; // pionner si/no
+            const baseIndex = 11 + (i * 3);   // 👈 cada mes ahora ocupa 3 columnas
+            const valor = row[baseIndex];     // participación u horas
+            const pionnerVal = row[baseIndex + 1]; // precursor auxiliar
+            const coursesVal = row[baseIndex + 2]; // cursos bíblicos
 
+            // Participación / horas
             if (valor !== "") {
               const strVal = String(valor).toLowerCase();
               try {
@@ -149,6 +159,7 @@
               }
             }
 
+            // Precursor auxiliar
             if (pionnerVal !== "") {
               const strPio = String(pionnerVal).toLowerCase();
               try {
@@ -157,6 +168,15 @@
                 }
               } catch (err) {
                 console.warn(`Error en pionner de ${month}`, err);
+              }
+            }
+
+            // Cursos bíblicos
+            if (coursesVal !== "") {
+              try {
+                form.getTextField(`${month}_courses`).setText(String(coursesVal));
+              } catch (err) {
+                console.warn(`Error en cursos de ${month}`, err);
               }
             }
           });
@@ -178,4 +198,5 @@
     });
   </script>
 </body>
+
 </html>
