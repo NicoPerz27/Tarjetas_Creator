@@ -206,7 +206,20 @@
 
           // generar archivo en carpeta de grupo
           const pdfFinal = await pdfDoc.save();
-          const nombre = (row[1] || "registro").toString().replace(/[^a-z0-9]/gi, "_");
+          // 🔧 Limpieza avanzada de nombres de archivo (mantiene acentos visibles)
+          function limpiarNombreArchivo(texto) {
+            if (!texto) return "registro";
+            return texto
+              .normalize("NFD")               // separa letras y acentos (Ñ → N + ~)
+              .replace(/[\u0300-\u036f]/g, "") // elimina marcas diacríticas (acentos)
+              .replace(/ñ/g, "n")              // reemplaza ñ
+              .replace(/Ñ/g, "N")
+              .replace(/[^a-zA-Z0-9_\- ]/g, "") // elimina símbolos extraños
+              .trim()
+              .replace(/\s+/g, "_");           // espacios → guiones bajos
+          }
+
+          const nombre = limpiarNombreArchivo(row[1]);
           zip.folder(String(grupo)).file(`${nombre}.pdf`, pdfFinal);
         }
 
