@@ -94,7 +94,7 @@
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
 
         // Normalizar todas las filas
         const totalCols = rows[0].length;
@@ -112,11 +112,34 @@
           const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
           const form = pdfDoc.getForm();
 
+          // 🔧 Corrige fechas con año de 2 dígitos → dd/mm/yyyy
+          function fixShortYear(dateStr) {
+            if (typeof dateStr !== "string") return dateStr;
+            const parts = dateStr.split("/");
+            if (parts.length !== 3) return dateStr;
+
+            let [d, m, y] = parts.map(p => p.trim());
+
+            // Si el año tiene 2 dígitos, lo expandimos
+            if (y.length === 2) {
+              const yearNum = parseInt(y, 10);
+              y = yearNum > 30 ? `19${y}` : `20${y}`; // ajusta el umbral si lo deseas
+            }
+
+            return `${parseInt(d, 10)}/${parseInt(m, 10)}/${y}`;
+          }
+
           try {
-            form.getTextField("full_name").setText(row[1] || "");
-            form.getTextField("birth_date").setText(row[2] || "");
-            form.getTextField("baptism_date").setText(row[3] || "");
-          } catch (err) { console.warn("Error en campos básicos", err); }
+            const nombre = String(row[1] || "");
+            const nacimiento = row[2] ? fixShortYear(String(row[2])) : "";
+            const bautismo = row[3] ? fixShortYear(String(row[3])) : "";
+
+            form.getTextField("full_name").setText(nombre);
+            form.getTextField("birth_date").setText(nacimiento);
+            form.getTextField("baptism_date").setText(bautismo);
+          } catch (err) {
+            console.warn("Error en campos básicos", err);
+          }
 
           // Género (col 4)
           const gender = (row[4] || "").toString().toUpperCase();
